@@ -2,12 +2,11 @@
 
 pragma solidity ^0.8.0;
 
-
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
-contract PokeDIO is ERC721{
+contract PokeDIO is ERC721 {
 
-    struct Pokemon{
+    struct Pokemon {
         string name;
         uint level;
         string img;
@@ -16,38 +15,35 @@ contract PokeDIO is ERC721{
     Pokemon[] public pokemons;
     address public gameOwner;
 
-    constructor () ERC721 ("PokeDIO", "PKD"){
-
+    constructor() ERC721("PokeDIO", "PKD") {
         gameOwner = msg.sender;
-
     } 
 
     modifier onlyOwnerOf(uint _monsterId) {
-
-        require(ownerOf(_monsterId) == msg.sender,"Apenas o dono pode batalhar com este Pokemon");
+        require(ownerOf(_monsterId) == msg.sender, "Apenas o dono pode batalhar com este Pokemon");
         _;
-
     }
 
-    function battle(uint _attackingPokemon, uint _defendingPokemon) public onlyOwnerOf(_attackingPokemon){
+    function battle(uint _attackingPokemon, uint _defendingPokemon) public onlyOwnerOf(_attackingPokemon) {
         Pokemon storage attacker = pokemons[_attackingPokemon];
         Pokemon storage defender = pokemons[_defendingPokemon];
 
-         if (attacker.level >= defender.level) {
-            attacker.level += 2;
-            defender.level += 1;
-        }else{
-            attacker.level += 1;
-            defender.level += 2;
+        uint attackerLevel = attacker.level;
+        uint defenderLevel = defender.level;
+
+        if (attackerLevel >= defenderLevel) {
+            attacker.level = attackerLevel + 2;
+            defender.level = defenderLevel + 1;
+        } else {
+            attacker.level = attackerLevel + 1;
+            defender.level = defenderLevel + 2;
         }
     }
 
     function createNewPokemon(string memory _name, address _to, string memory _img) public {
         require(msg.sender == gameOwner, "Apenas o dono do jogo pode criar novos Pokemons");
         uint id = pokemons.length;
-        pokemons.push(Pokemon(_name, 1,_img));
+        pokemons.push(Pokemon(_name, 1, _img));
         _safeMint(_to, id);
     }
-
-
 }
